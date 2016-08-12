@@ -1,0 +1,1 @@
+These files should be put in your theme directory and then customised for your use
