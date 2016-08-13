@@ -20,6 +20,7 @@ class KYC2Ingest_Frontend {
 
 	public function init_hooks() {
 		add_filter('template_include', array("KYC2Ingest_Frontend", 'load_frontend_template'), 99 );
+		add_filter("gettext", array("KYC2Ingest_Frontend", 'parse_definitions'), 99, 3);
 	}
 
 	public function load_frontend_template( $template ) {
@@ -64,12 +65,32 @@ class KYC2Ingest_Frontend {
 				global $title;
 				return $title;
 			});
+			global $kyc_definitions;
+			$kyc_definitions = [];
+			$defs = get_option("kyc2ingest_definitions");
+			if (is_array($defs)) {
+				foreach($defs as $def) {
+					$kyc_definitions[$def["key"]] = $def["val"];
+				}
+			}
 			global $wp_query;
 			status_header( 200 );
 			$wp_query->is_404=false;
 			// add_filter('pre_get_document_title', function($title) { print "Testing - $title; "; return "test"; } );
 			return $settlement_data;
 		}
+	}
+
+	public function parse_definitions($translated_text, $text, $domain ) {
+		global $kyc_definitions;
+		if (!is_array($kyc_definitions)) {
+			return $text;
+		}
+		$keys = array_keys($kyc_definitions);
+		if (in_array($text, $keys)) {
+			return $kyc_definitions[$text];
+		}
+		return $text;
 	}
 
 	protected static function throw_404() {

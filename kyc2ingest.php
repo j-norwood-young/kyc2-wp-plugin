@@ -6,7 +6,7 @@
 Plugin Name: Know Your City ONA ingester
 Plugin URI: http://knowyourcity.info/
 Description: This Wordpress plugin takes data from the ONA API and puts it into Know Your City's Wordpress website
-Version: 0.0.1
+Version: 0.0.2
 Author: Jason Norwood-Young
 Author URI: http://10layer.com
 License: MIT

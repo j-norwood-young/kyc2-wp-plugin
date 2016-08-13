@@ -31,9 +31,9 @@ class KYC2Ingest_Admin {
 	public function admin_menu() {
 		add_menu_page('KYC2 Ingester', 'KYC', 'manage_options', 'kyc2ingest', array("KYC2Ingest_Admin", "display_overview"));
 		add_submenu_page( 'kyc2ingest', 'KYC Credentials', 'Credentials', 'manage_options', 'kyc2ingest-ona-credentials', array("KYC2Ingest_Admin", "display_credentials"));
-		add_submenu_page( 'kyc2ingest', 'KYC ONA Forms', 'ONA Forms', 'manage_options', 'kyc2ingest-ona-forms', array("KYC2Ingest_Admin", "display_forms"));
-		add_submenu_page( 'kyc2ingest', 'KYC ONA Settlements', 'Settlements', 'manage_options', 'kyc2ingest-ona-settlements', array("KYC2Ingest_Admin", "display_settlements"));
-		// add_options_page("KYC2 Ingest Options", "KYC2 Ingest", "manage_options", "kyc2ingest-options", array("KYC2Ingest_Admin", "display_overview") );
+		add_submenu_page( 'kyc2ingest', 'KYC Forms', 'Forms', 'manage_options', 'kyc2ingest-ona-forms', array("KYC2Ingest_Admin", "display_forms"));
+		add_submenu_page( 'kyc2ingest', 'KYC Settlements', 'Settlements', 'manage_options', 'kyc2ingest-ona-settlements', array("KYC2Ingest_Admin", "display_settlements"));
+		add_submenu_page( 'kyc2ingest', 'KYC Translations', 'Translations', 'manage_options', 'kyc2ingest-definitions', array("KYC2Ingest_Admin", "display_definitions"));
 	}
 
 	public static function admin_plugin_settings_link( $links ) { 
@@ -57,7 +57,7 @@ class KYC2Ingest_Admin {
 		}
 		$data = [];
 		$data["ona_forms"] = self::$ona->data();
-		$data["ona_selected_forms"] = get_option("kyc2ingest_ona_forms");
+		$data["ona_selected_forms"] = self::get_selected_forms();
 		include(plugin_basename(  "/views/forms.php"));
 	}
 
@@ -79,8 +79,19 @@ class KYC2Ingest_Admin {
 			wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
 		}
 		$data = [];
-		
+		$data["test"] = self::$ona->test();
+		$data["forms"] = self::get_selected_forms();
+		$data["settlements"] = self::flatten_array(get_option("kyc2ingest_settlements"));
 		include(plugin_basename(  "/views/overview.php"));
+	}
+
+	public static function display_definitions() {
+		if ( !current_user_can( 'manage_options' ) )  {
+			wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
+		}
+		$data = [];
+		$data["definitions"] = get_option("kyc2ingest_definitions");
+		include(plugin_basename(  "/views/definitions.php"));
 	}
 
 	public function process_form($action) {
@@ -93,6 +104,9 @@ class KYC2Ingest_Admin {
 				break;
 			case "select_settlements":
 				self::save_select_settlements();
+				break;
+			case "save_definitions":
+				self::save_definitions();
 				break;
 		}
 	}
@@ -116,9 +130,37 @@ class KYC2Ingest_Admin {
 		return true;
 	}
 
+	public function save_definitions() {
+		$data = [];
+		foreach($_POST["definitions"] as $key=>$val) {
+			if (!empty($val["key"])) {
+				$data[] = $val;
+			}
+		}
+		update_option("kyc2ingest_definitions", $data);
+		return true;
+	}
+
 	public function test_api() {
 		if (!self::$ona->test()) {
-			print "<div class='notice notice-warning is-dismissible'><p>Warning: Could not connect to ONA API. Please check username and password</p></div>";
+			print "<div class='notice notice-warning is-dismissible'><p><div class='dashicons dashicons-warning'></div> Could not connect to ONA. Please check your <a href='" . admin_url( 'admin.php?page=kyc2ingest-ona-credentials' ) . "'>credentials</a>.</p></div>";
 		}
+	}
+
+	private static function flatten_array($arr) {
+		if ((!is_array($arr)) || (sizeof($arr) === 0)) {
+			return [];
+		}
+		$return = [];
+		array_walk_recursive($arr, function($a) use (&$return) { $return[] = $a; });
+		return $return;
+	}
+
+	private static function get_selected_forms() {
+		$forms = get_option("kyc2ingest_ona_forms");
+		if (!is_array($forms)) {
+			$forms = [];
+		}
+		return $forms;
 	}
 }

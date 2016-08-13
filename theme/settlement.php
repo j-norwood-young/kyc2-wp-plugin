@@ -25,7 +25,7 @@ $dev_translation = ["water_drainage" => "Water Drainage", "sanitation_sewage" =>
 				if (isset($settlement->{$priority_name})) {
 				?>
 					<li>
-						<?= ($settlement->{$priority_name} === "other") ? $settlement->{$priority_comment} : $dev_translation[$settlement->{$priority_name}] ?>
+						<?= ($settlement->{$priority_name} === "other") ? $settlement->{$priority_comment} : _e($settlement->{$priority_name}) ?>
 					</li>
 				<?php
 				}
@@ -35,7 +35,7 @@ $dev_translation = ["water_drainage" => "Water Drainage", "sanitation_sewage" =>
 	
 	<h2>Eviction Threat</h2>
 	<h3><?= ucfirst($settlement->{"section_E/E2B_Current_Eviction_Seriousness"}) ?></h3>
-	<p>Status: <strong><?= $settlement->{"section_B/B14_Status"} ?></strong></p>
+	<p>Status: <strong><?= _e($settlement->{"section_B/B14_Status"}) ?></strong></p>
 
 	<h2>Land Ownership</h2>
 	<p>Graph here</p>
@@ -81,13 +81,13 @@ $dev_translation = ["water_drainage" => "Water Drainage", "sanitation_sewage" =>
 	<p><?= ucfirst($settlement->{"section_J/J1_Electricity_Available"}) ?> (<?= $settlement->{"section_J/J5_Electricity_HoursPerDay"} ?> per day)</p>
 
 	<h2>Garbage collections</h2>
-	<p><?= $settlement->{"section_H/H6_Garbage_WeeklyCollections"} ?> per week</p>
+	<p><?= _e($settlement->{"section_H/H6_Garbage_WeeklyCollections"}) ?> per week</p>
 
 	<h2>Garbage location</h2>
-	<p><?= $settlement->{"section_H/H1_Garbage_Location"} ?></p>
+	<p><?= _e($settlement->{"section_H/H1_Garbage_Location"}) ?></p>
 
 	<h2>How do people in the settlement access their homes?</h2>
-	<p><?= $settlement->{"section_L/L5_Road_Type"} ?></p>
+	<p><?= _e($settlement->{"section_L/L5_Road_Type"}) ?></p>
 
 	<h2>Main means of transportation</h2>
 	<p><?= $settlement->{"section_L/L1_Transport_Modes"} ?></p>
