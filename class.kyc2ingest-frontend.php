@@ -30,7 +30,9 @@ class KYC2Ingest_Frontend {
 			wp_enqueue_script( 'leaflet', "https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js", array(), null );
 			wp_enqueue_script("settlement_map", plugin_dir_url( __FILE__ ) . "js/settlement_map.js", array(), "", true);
 			wp_enqueue_style("c3", plugin_dir_url( __FILE__ ) . "c3/c3.min.css");
+			wp_enqueue_script("d3", plugin_dir_url( __FILE__ ) . "d3/d3.min.js");
 			wp_enqueue_script("c3", plugin_dir_url( __FILE__ ) . "c3/c3.min.js");
+			wp_enqueue_script("graphs", plugin_dir_url( __FILE__ ) . "js/graphs.js");
 			add_filter( 'get_settlement', array("KYC2Ingest_Frontend", 'return_settlement_data') );
 			$new_template = locate_template( array( 'settlement.php' ) );
 			if ( '' != $new_template ) {

@@ -38,7 +38,25 @@ $dev_translation = ["water_drainage" => "Water Drainage", "sanitation_sewage" =>
 	<p>Status: <strong><?= _e($settlement->{"section_B/B14_Status"}) ?></strong></p>
 
 	<h2>Land Ownership</h2>
-	<p>Graph here</p>
+	<p>
+		<?php
+			$data = [
+				"Private owner" => $settlement->{"section_B/B13_Ownership_private_owner"}, 
+				"Airport authority" => $settlement->{"section_B/B13_Ownership_airport_authority"}, 
+				"Church land" => $settlement->{"section_B/B13_Ownership_church_land"}, 
+				"Port trust" => $settlement->{"section_B/B13_Ownership_port_trust"}, 
+				"Other" => $settlement->{"section_B/B13_Ownership_other_percentage"}, 
+				"Customary land" => $settlement->{"section_B/B13_Ownership_customary_land"}, 
+				"Other government" => $settlement->{"section_B/B13_Ownership_other_government_percentage"}, 
+				"Municipality" => $settlement->{"section_B/B13_Ownership_municipality"}, 
+				"Crown land" => $settlement->{"section_B/B13_Ownership_crown_land"}, 
+				"Defense" => $settlement->{"section_B/B13_Ownership_defense"}, 
+				"Railway" => $settlement->{"section_B/B13_Ownership_railway"}, 
+				"Unknown" => $settlement->{"section_B/B13_Ownership_Unknown"}
+			];
+		?>
+		<div id="landOwnership" class="graph" data-data='<?= json_encode($data) ?>'></div>
+	</p>
 
 	<h2>Estimated number of structures</h2>
 	<p><?= number_format($settlement->{"section_C/C5_Structures_Total"}) ?></p>
