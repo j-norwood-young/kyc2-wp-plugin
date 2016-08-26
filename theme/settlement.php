@@ -114,10 +114,10 @@
 	<p><?= number_format($settlement->{"section_C/C12_Total_Population"}) ?></p>
 
 	<h2>Area/Size</h2>
-	<p><?= number_format($settlement->{"section_B/B2b_Area_acres"}) ?> Acres / <?= number_format($settlement->{"section_B/B2a_Area_sqmt"}) ?> m<sup>2</sup></p>
+	<p><?= number_format($settlement->{"section_B/B2b_Area_acres"}) ?> Acres</p>
 
 	<h2>Population density</h2>
-	<p><?= number_format($settlement->{"section_C/C12_Total_Population"} / $settlement->{"section_B/B2b_Area_acres"}) ?> per Acre / <?= number_format($settlement->{"section_C/C12_Total_Population"} / $settlement->{"section_B/B2a_Area_sqmt"} * 1000) ?> per km<sup>2</sup></p>
+	<p><?= number_format($settlement->{"section_C/C12_Total_Population"} / $settlement->{"section_B/B2b_Area_acres"}) ?> per Acre / <?= number_format($settlement->{"section_C/C12_Total_Population"}) ?></p>
 
 	<h1>Water and Sanitation</h1>
 
@@ -131,10 +131,10 @@
 	<div id="tapsGraph" class="graph" data-data='<?= json_encode($data) ?>'></div>
 
 	<h2>Number of working taps</h2>
-	<p><?= $settlement->{"section_F/F3_Working"} ?></p>
+	<p><?= $settlement->{"section_F/F1_Working"} ?></p>
 
 	<h2>Ratio of working taps to people</h2>
-	<p>1 : <?= number_format($settlement->{"section_C/C12_Total_Population"} / $settlement->{"section_F/F3_Working"}) ?></p>
+	<p>1 : <?= number_format($settlement->{"section_C/C12_Total_Population"} / $settlement->{"section_F/F1_Working"}) ?></p>
 
 	<h2>Average cost of access per month</h2>
 	<p><?= number_format($settlement->{"section_F/F11_Water_MonthlyCost"}) ?></p>
@@ -143,18 +143,21 @@
 	<?php
 		// Here you can see us using __ instead of _e, because we want to return the value rather than printing it
 		$data = [
+			__($settlement->{"section_G/G7_Toilet_Type"}) . " Working" => $settlement->{"section_G/G7_Working"},
 			__($settlement->{"section_G/G8_Toilet_Type"}) . " Working" => $settlement->{"section_G/G8_Working"},
 			__($settlement->{"section_G/G9_Toilet_Type"}) . " Working" => $settlement->{"section_G/G9_Working"},
 			__($settlement->{"section_G/G10_Toilet_Type"}) . " Working" => $settlement->{"section_G/G10_Working"},
 		];
+
+		$toilet_count = $settlement->{"section_G/G7_Working"} + $settlement->{"section_G/G8_Working"} + $settlement->{"section_G/G9_Working"} + $settlement->{"section_G/G10_Working"}
 	?>
 	<div id="toiletsGraph" class="graph" data-data='<?= json_encode($data) ?>'></div>
 
 	<h2>Number of working toilets</h2>
-	<p><?= number_format($settlement->{"section_G/G7_Working"}) ?></p>
+	<p><?= number_format($toilet_count) ?></p>
 
 	<h2>Ratio of working toilets to people</h2>
-	<p>1 : <?= number_format($settlement->{"section_C/C12_Total_Population"} / $settlement->{"section_G/G7_Working"}) ?></p>
+	<p>1 : <?= number_format($settlement->{"section_C/C12_Total_Population"} / $toilet_count) ?></p>
 
 	<h1>Infrastructure</h1>
 	
