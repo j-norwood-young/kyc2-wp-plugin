@@ -1,10 +1,37 @@
-<?php $settlement = apply_filters( 'get_settlement', '' ); ?>
-<?php get_header(); ?>
 <?php
-$dev_translation = ["water_drainage" => "Water Drainage", "sanitation_sewage" => "Sanitation and Sewerage"];
+	/*
+	 * This is an example page for a Settlement that can be included in your theme. 
+	 * The file must be called `settlement.php`
+	 * When a user navigates to /settlement/<form_id>/<settlement_id>, 
+	 * we will load this page, populating the data directly from ONA through the API.
+	 *
+	 * All the settlement data is stored in a variable called `$settlement`
+	 *
+	 * It includes maps, graphs, and translations so that you can turn unfriendly phrases like 
+	 * "sanitation_sewage" into "Sanitation and Sewage".
+	 * 
+	 * To translate a field, use _e() to print or __() to return a value.
+	 * 
+	 */
+	
+	// We start with getting the settlement data. We also do some header mangling to avoid getting a 404, because according to Wordpress this page doesn't exist.
+	$settlement = apply_filters( 'get_settlement', '' ); 
+?>
+<?php 
+	// We get the headers, and also inject libraries for the maps and graphs
+	get_header(); 
 ?>
 
+<!-- The map -->
 <div id="mapid"></div>
+
+<?php 
+	/* You can see below how the URL is formed: /settlement/<?= $settlement->form_id ?>/<?= $settlement->_id ?> 
+	 *
+	 * Note how we address fields as strings, because of the /
+	 *
+	 */
+?>
 
 <h1><a href="/settlement/<?= $settlement->form_id ?>/<?= $settlement->_id ?>"><?= $settlement->{"section_B/B7_Settlement_Name_Community"} ?>, <?= $settlement->{"section_B/B5_City"} ?>, <?= $settlement->{"section_B/B3_Country"} ?></a></h1>
 	<h6>Last updated on <?= (isset($settlement->{"section_A/A1a_Last_Updated"})) ? $settlement->{"section_A/A1a_Last_Updated"} : $settlement->{"section_A/A1_Profile_Date"} ?></h6>
@@ -16,18 +43,29 @@ $dev_translation = ["water_drainage" => "Water Drainage", "sanitation_sewage" =>
 		<?= $settlement->{"section_B/B12_History"} ?>
 	</p>
 
+	<?php
+		/*
+		 * We can use PHP to cheat a bit, running through the priorities, just watch out for empty "others"
+		 */
+	?>
 	<h2>Priority Development Needs</h2>
 	<ul>
 		<?php
 			for($x = 1; $x <= 5; $x++) {
 				$priority_name = "section_Q/Q{$x}_Priority{$x}";
 				$priority_comment = "section_Q/Q{$x}b_Priority{$x}_Comments";
-				if (isset($settlement->{$priority_name})) {
+				if (!empty($settlement->{$priority_name})) {
+					if ($settlement->{$priority_name} === "other" && (!empty($settlement->{$priority_comment}))) {
 				?>
 					<li>
-						<?= ($settlement->{$priority_name} === "other") ? $settlement->{$priority_comment} : _e($settlement->{$priority_name}) ?>
+						<?= $settlement->{$priority_comment} ?>
 					</li>
 				<?php
+					} elseif($settlement->{$priority_name} !== "other") {  ?>
+					<li>
+						<?= _e($settlement->{$priority_name}) ?>
+					</li>
+				<?php	}
 				}
 			}
 		?>
@@ -38,6 +76,17 @@ $dev_translation = ["water_drainage" => "Water Drainage", "sanitation_sewage" =>
 	<p>Status: <strong><?= _e($settlement->{"section_B/B14_Status"}) ?></strong></p>
 
 	<h2>Land Ownership</h2>
+	<?php
+		/*
+		 * You can see how we build a graph here. We just put all the data 
+		 * into an associated array, and drop it in to an element with 
+		 * the data json_encoded in the attribute `data-data`.
+		 * 
+		 * Make sure the class is `graph` and that you give it a unique ID.
+		 * Once you've done that, it will work like magic.
+		 *
+		 */
+	?>
 	<p>
 		<?php
 			$data = [
@@ -92,6 +141,7 @@ $dev_translation = ["water_drainage" => "Water Drainage", "sanitation_sewage" =>
 
 	<h2>Number of communal toilets shared</h2>
 	<?php
+		// Here you can see us using __ instead of _e, because we want to return the value rather than printing it
 		$data = [
 			__($settlement->{"section_G/G8_Toilet_Type"}) . " Working" => $settlement->{"section_G/G8_Working"},
 			__($settlement->{"section_G/G9_Toilet_Type"}) . " Working" => $settlement->{"section_G/G9_Working"},
@@ -123,12 +173,23 @@ $dev_translation = ["water_drainage" => "Water Drainage", "sanitation_sewage" =>
 	<h2>Main means of transportation</h2>
 	<p><?= $settlement->{"section_L/L1_Transport_Modes"} ?></p>
 <pre>
-<?php print_r($settlement) ?>
+<?php
+	/* This is to help with building - it's a quick way to look up the parameters available for display.
+	 * 
+	 * Remember to remove it for production!
+	 *
+	 */
+	print_r($settlement) 
+?>
 </pre>
+<?php
+	/*
+	 * Here we inject our mapping data. This might move to another page at some point.
+	 */
+?>
 <script type="text/javascript" charset="utf-8">
 	var midLat = "<?= $settlement->_geolocation[0] ?>";
 	var midLng = "<?= $settlement->_geolocation[1] ?>";
 	var shape = <?= json_encode($settlement->shape) ?>; // jshint ignore:line
-	
 </script>
 <?php get_footer(); ?>
