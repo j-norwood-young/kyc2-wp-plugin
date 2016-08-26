@@ -55,7 +55,7 @@ $dev_translation = ["water_drainage" => "Water Drainage", "sanitation_sewage" =>
 				"Unknown" => $settlement->{"section_B/B13_Ownership_Unknown"}
 			];
 		?>
-		<div id="landOwnership" class="graph" data-data='<?= json_encode($data) ?>'></div>
+		<div id="landOwnershipGraph" class="graph" data-data='<?= json_encode($data) ?>'></div>
 	</p>
 
 	<h2>Estimated number of structures</h2>
@@ -73,7 +73,13 @@ $dev_translation = ["water_drainage" => "Water Drainage", "sanitation_sewage" =>
 	<h1>Water and Sanitation</h1>
 
 	<h2>Number of shared and community taps</h2>
-	<p>Graph here</p>
+	<?php
+		$data = [
+			"Taps Not Working" => $settlement->{"section_F/F1_Count"} - $settlement->{"section_F/F1_Working"},
+			"Taps Working" => $settlement->{"section_F/F1_Working"},
+		];
+	?>
+	<div id="tapsGraph" class="graph" data-data='<?= json_encode($data) ?>'></div>
 
 	<h2>Number of working taps</h2>
 	<p><?= $settlement->{"section_F/F3_Working"} ?></p>
@@ -85,7 +91,14 @@ $dev_translation = ["water_drainage" => "Water Drainage", "sanitation_sewage" =>
 	<p><?= number_format($settlement->{"section_F/F11_Water_MonthlyCost"}) ?></p>
 
 	<h2>Number of communal toilets shared</h2>
-	<p>???</p>
+	<?php
+		$data = [
+			__($settlement->{"section_G/G8_Toilet_Type"}) . " Working" => $settlement->{"section_G/G8_Working"},
+			__($settlement->{"section_G/G9_Toilet_Type"}) . " Working" => $settlement->{"section_G/G9_Working"},
+			__($settlement->{"section_G/G10_Toilet_Type"}) . " Working" => $settlement->{"section_G/G10_Working"},
+		];
+	?>
+	<div id="toiletsGraph" class="graph" data-data='<?= json_encode($data) ?>'></div>
 
 	<h2>Number of working toilets</h2>
 	<p><?= number_format($settlement->{"section_G/G7_Working"}) ?></p>
