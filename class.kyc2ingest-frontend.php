@@ -38,6 +38,16 @@ class KYC2Ingest_Frontend {
 			if ( '' != $new_template ) {
 				return $new_template ;
 			}
+		} elseif (strpos($_SERVER["REQUEST_URI"], "/city") === 0) {
+			add_filter( 'get_city', array("KYC2Ingest_Frontend", 'return_city_data') );
+			$new_template = locate_template( array( 'city.php' ) );
+			wp_enqueue_style("c3", plugin_dir_url( __FILE__ ) . "c3/c3.min.css");
+			wp_enqueue_script("d3", plugin_dir_url( __FILE__ ) . "d3/d3.min.js");
+			wp_enqueue_script("c3", plugin_dir_url( __FILE__ ) . "c3/c3.min.js");
+			wp_enqueue_script("graphs", plugin_dir_url( __FILE__ ) . "js/graphs.js");
+			if ( '' != $new_template ) {
+				return $new_template ;
+			}
 		}
 		return $template;
 	}
@@ -82,6 +92,49 @@ class KYC2Ingest_Frontend {
 			$wp_query->is_404=false;
 			// add_filter('pre_get_document_title', function($title) { print "Testing - $title; "; return "test"; } );
 			return $settlement_data;
+		}
+	}
+
+	public function return_city_data() {
+		if (strpos($_SERVER["REQUEST_URI"], "/city") === 0) {
+			$s = trim($_SERVER["REQUEST_URI"], "/");
+			$parts = explode("/", $s);
+			if (sizeof($parts) < 3) {
+				self::throw_404();
+			}
+			$city_data = self::$ona->data($parts[1] . "/" . $parts[2]);
+			if ($city_data->detail === "Not found.") {
+				self::throw_404();
+			}
+			$city_data->form_id = $parts[1];
+			// $shape = [];
+			// if ($city_data->{'verification/A0_Boundary'}) {
+			// 	$parts = explode(";", $city_data->{'verification/A0_Boundary'});
+			// 	foreach($parts as $part) {
+			// 		$ll = explode(" ", $part);
+			// 		$shape[] = [$ll[0], $ll[1]];
+			// 	}
+			// }
+			// $city_data->shape = $shape;
+			global $title;
+			$title = $city_data->{"section_A/A2_City"} . ", " . $city_data->{"section_A/A1_Country"};
+			add_filter('pre_get_document_title', function() {
+				global $title;
+				return $title;
+			});
+			global $kyc_definitions;
+			$kyc_definitions = [];
+			$defs = get_option("kyc2ingest_definitions");
+			if (is_array($defs)) {
+				foreach($defs as $def) {
+					$kyc_definitions[$def["key"]] = $def["val"];
+				}
+			}
+			global $wp_query;
+			status_header( 200 );
+			$wp_query->is_404=false;
+			// add_filter('pre_get_document_title', function($title) { print "Testing - $title; "; return "test"; } );
+			return $city_data;
 		}
 	}
 

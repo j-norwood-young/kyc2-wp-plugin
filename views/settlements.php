@@ -20,6 +20,7 @@
 		<?php
 		foreach($data["form"] as $form_id=>$form) {
 			foreach($form as $settlement_id=>$settlement) {
+				if (!empty($settlement->{"section_B/B7_Settlement_Name_Community"})) {
 		?>
 			<tr>
 				<th scope="row" class="check-column"><label class="screen-reader-text" for="">Select Settlement</label><input type="checkbox" name="ona_settlements[<?= $form_id ?>][]" value="<?= $settlement->_id ?>" id="checkbox_<?= $form_id ?>_<?= $settlement->_id ?>" <?= ((isset($data["ona_selected_settlements"][$form_id]) && (in_array($settlement->_id, $data["ona_selected_settlements"][$form_id])))) ? 'checked' :'' ?>></th>
@@ -30,6 +31,7 @@
 				<td><a href="/settlement/<?= $form_id ?>/<?= $settlement->_id ?>" target="_blank">Preview</a></td>
 			</tr>
 		<?php
+				}
 			}
 		}
 		?>

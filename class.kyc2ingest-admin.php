@@ -33,6 +33,7 @@ class KYC2Ingest_Admin {
 		add_submenu_page( 'kyc2ingest', 'KYC Credentials', 'Credentials', 'manage_options', 'kyc2ingest-ona-credentials', array("KYC2Ingest_Admin", "display_credentials"));
 		add_submenu_page( 'kyc2ingest', 'KYC Forms', 'Forms', 'manage_options', 'kyc2ingest-ona-forms', array("KYC2Ingest_Admin", "display_forms"));
 		add_submenu_page( 'kyc2ingest', 'KYC Settlements', 'Settlements', 'manage_options', 'kyc2ingest-ona-settlements', array("KYC2Ingest_Admin", "display_settlements"));
+		add_submenu_page( 'kyc2ingest', 'KYC Cities', 'Cities', 'manage_options', 'kyc2ingest-ona-cities', array("KYC2Ingest_Admin", "display_cities"));
 		add_submenu_page( 'kyc2ingest', 'KYC Translations', 'Translations', 'manage_options', 'kyc2ingest-definitions', array("KYC2Ingest_Admin", "display_definitions"));
 	}
 
@@ -72,6 +73,19 @@ class KYC2Ingest_Admin {
 			$data["form"][$form_id] = self::$ona->data($form_id);
 		}
 		include(plugin_basename(  "/views/settlements.php"));
+	}
+
+	public static function display_cities() {
+		if ( !current_user_can( 'manage_options' ) )  {
+			wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
+		}
+		$data = [];
+		$forms = get_option("kyc2ingest_ona_forms");
+		$data["ona_selected_cities"] = get_option("kyc2ingest_cities");
+		foreach($forms as $form_id) {
+			$data["form"][$form_id] = self::$ona->data($form_id);
+		}
+		include(plugin_basename(  "/views/cities.php"));
 	}
 
 	public static function display_overview() {
