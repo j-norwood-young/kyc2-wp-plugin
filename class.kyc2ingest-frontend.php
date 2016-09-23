@@ -9,6 +9,7 @@ class KYC2Ingest_Frontend {
 
 	private static $initiated = false;
 	private static $ona = false;
+	private static $table_name;
 
 	public function init() {
 		if ( ! self::$initiated ) {
@@ -16,6 +17,7 @@ class KYC2Ingest_Frontend {
 		}
 		self::$ona = new KYC2Ingest\KYC2Ingest_ONA();
 		self::$ona->init();
+		self::$table_name = $wpdb->prefix . "kyc2ingest";
 	}
 
 	public function init_hooks() {
@@ -90,6 +92,12 @@ class KYC2Ingest_Frontend {
 			global $wp_query;
 			status_header( 200 );
 			$wp_query->is_404=false;
+			//Get our cached data
+			global $wpdb;
+			$settlement_data->cached = $wpdb->get_results( "SELECT * FROM " . $wpdb->prefix . "kyc2ingest_settlements" . " WHERE ona_id = " . $settlement_data->_id)[0];
+			$settlement_data->city_cached = $wpdb->get_results(
+				$wpdb->prepare("SELECT * FROM " . $wpdb->prefix . "kyc2ingest_cities" . " WHERE city_id = %s", $settlement_data->cached->city_id)
+			)[0];
 			// add_filter('pre_get_document_title', function($title) { print "Testing - $title; "; return "test"; } );
 			return $settlement_data;
 		}
@@ -133,7 +141,20 @@ class KYC2Ingest_Frontend {
 			global $wp_query;
 			status_header( 200 );
 			$wp_query->is_404=false;
-			// add_filter('pre_get_document_title', function($title) { print "Testing - $title; "; return "test"; } );
+			global $wpdb;
+			$cached_settlements = $wpdb->get_results( "SELECT * FROM " . $wpdb->prefix . "kyc2ingest_settlements" . " WHERE city_id = '" . $city_data->{"section_A/A2_City"} . "'");
+			// Make sure that we only present public settlements
+			$selected_settlement_forms = get_option("kyc2ingest_settlements");
+			$city_data->settlements = [];
+			foreach($selected_settlement_forms as $form_id => $selected_settlements) {
+				foreach($selected_settlements as $selected_settlement) {
+					foreach($cached_settlements as $cached_settlement) {
+						if ($cached_settlement->ona_id === $selected_settlement) {
+							$city_data->settlements[] = $cached_settlement;
+						}
+					}
+				}
+			}
 			return $city_data;
 		}
 	}
@@ -148,6 +169,11 @@ class KYC2Ingest_Frontend {
 			return $kyc_definitions[$text];
 		}
 		return $text;
+	}
+
+	protected static function fetch_cache() {
+		global $wpdb;
+		return $wpdb->get_results( "SELECT * FROM " . self::$tablename);
 	}
 
 	protected static function throw_404() {

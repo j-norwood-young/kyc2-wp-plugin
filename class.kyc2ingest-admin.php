@@ -3,12 +3,14 @@
 // namespace KYC2Ingest;
 // use KYC2Ingest;
 include_once(plugin_basename("class.kyc2ingest-ona.php"));
+include_once(plugin_basename("class.kyc2ingest-cache.php"));
 
 class KYC2Ingest_Admin {
 
 
 	private static $initiated = false;
 	private static $ona = false;
+	private static $cache = false;
 
 	public function init() {
 		if ( ! self::$initiated ) {
@@ -16,6 +18,8 @@ class KYC2Ingest_Admin {
 		}
 		self::$ona = new KYC2Ingest\KYC2Ingest_ONA();
 		self::$ona->init();
+		self::$cache = new KYC2Ingest\KYC2Ingest_Cache();
+		self::$cache->init();
 		if (isset($_POST["action"])) {
 			self::process_form($_POST["action"]);
 		}
@@ -35,6 +39,7 @@ class KYC2Ingest_Admin {
 		add_submenu_page( 'kyc2ingest', 'KYC Settlements', 'Settlements', 'manage_options', 'kyc2ingest-ona-settlements', array("KYC2Ingest_Admin", "display_settlements"));
 		add_submenu_page( 'kyc2ingest', 'KYC Cities', 'Cities', 'manage_options', 'kyc2ingest-ona-cities', array("KYC2Ingest_Admin", "display_cities"));
 		add_submenu_page( 'kyc2ingest', 'KYC Translations', 'Translations', 'manage_options', 'kyc2ingest-definitions', array("KYC2Ingest_Admin", "display_definitions"));
+		add_submenu_page( 'kyc2ingest', 'Refresh Cache', 'Refresh Cache', 'manage_options', 'kyc2ingest-cache-test', array("KYC2Ingest_Admin", "cache_test"));
 	}
 
 	public static function admin_plugin_settings_link( $links ) { 
@@ -119,6 +124,9 @@ class KYC2Ingest_Admin {
 			case "select_settlements":
 				self::save_select_settlements();
 				break;
+			case "select_cities":
+				self::save_select_cities();
+				break;
 			case "save_definitions":
 				self::save_definitions();
 				break;
@@ -144,6 +152,11 @@ class KYC2Ingest_Admin {
 		return true;
 	}
 
+	public function save_select_cities() {
+		update_option("kyc2ingest_cities", $_POST["ona_cities"]);
+		return true;
+	}
+
 	public function save_definitions() {
 		$data = [];
 		foreach($_POST["definitions"] as $key=>$val) {
@@ -159,6 +172,11 @@ class KYC2Ingest_Admin {
 		if (!self::$ona->test()) {
 			print "<div class='notice notice-warning is-dismissible'><p><div class='dashicons dashicons-warning'></div> Could not connect to ONA. Please check your <a href='" . admin_url( 'admin.php?page=kyc2ingest-ona-credentials' ) . "'>credentials</a>.</p></div>";
 		}
+	}
+
+	public function cache_test() {
+		self::$cache->cache_cities();
+		self::$cache->cache_settlements();
 	}
 
 	private static function flatten_array($arr) {

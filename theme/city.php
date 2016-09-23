@@ -28,6 +28,22 @@
 <h2>History</h2>
 <p><?= $city->{"section_A/A3_City_History"} ?></p>
 
+<?php
+	/*
+	 * This is an example of navigation between the City page and all the Settlements for that city.
+	 * 
+	 */
+?>
+<ul>
+<?php
+	foreach($city->settlements as $settlement) {
+?>
+		<li><a href="/settlement/<?= $settlement->form_id ?>/<?= $settlement->ona_id ?>"><?= $settlement->name ?></a></li>
+<?php
+	}
+?>
+</ul>
+
 <h2>Number of Profiled Settlements</h2>
 <h3><?= $city->{"section_E/E2_Total_Profiled_Settlements"} ?></h3>
 

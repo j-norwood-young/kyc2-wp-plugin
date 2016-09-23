@@ -33,7 +33,7 @@
 	 */
 ?>
 
-<h1><a href="/settlement/<?= $settlement->form_id ?>/<?= $settlement->_id ?>"><?= $settlement->{"section_B/B7_Settlement_Name_Community"} ?>, <?= $settlement->{"section_B/B5_City"} ?>, <?= $settlement->{"section_B/B3_Country"} ?></a></h1>
+<h1><a href="/settlement/<?= $settlement->form_id ?>/<?= $settlement->_id ?>"><?= $settlement->{"section_B/B7_Settlement_Name_Community"} ?></a>, <a href="/city/<?= $settlement->city_cached->form_id ?>/<?= $settlement->city_cached->ona_id ?>"><?= $settlement->{"section_B/B5_City"} ?>, <?= $settlement->{"section_B/B3_Country"} ?></a></h1>
 	<h6>Last updated on <?= (isset($settlement->{"section_A/A1a_Last_Updated"})) ? $settlement->{"section_A/A1a_Last_Updated"} : $settlement->{"section_A/A1_Profile_Date"} ?></h6>
 	<h2>History</h2>
 	<p>
